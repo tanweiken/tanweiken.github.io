@@ -34,6 +34,7 @@
 
 ## Known Bugs  
 - Using keybinds for discarding may result in accidental extra discards if pressed too quickly  
+- **Inconsistent sound effect playback** in certain situations  
 
 ---
 

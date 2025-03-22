@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,21 +12,33 @@
             background-color: #1e1e1e;
             color: white;
         }
+
         #game-container {
             margin-top: 20px;
         }
+
         #deck {
             font-size: 20px;
             margin-bottom: 10px;
         }
+
+        .stacked-card {
+            opacity: 0.6;
+            background-color: gray;
+        }
+
         .card-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 160px;
-            margin: 20px 0;
             position: relative;
+            height: 160px;
+            width: 90vw;
+            /* Dynamically adjust width based on viewport */
+            max-width: 1000px;
+            /* Limit max width for large screens */
         }
+
         .card {
             width: 90px;
             height: 130px;
@@ -43,29 +56,37 @@
             opacity: 0;
             transition: opacity 0.5s, transform 0.5s;
         }
+
         .card.show {
             opacity: 1;
         }
-        .card .top-left, .card .bottom-right {
+
+        .card .top-left,
+        .card .bottom-right {
             position: absolute;
             font-size: 16px;
             font-weight: bold;
         }
+
         .card .top-left {
             top: 5px;
             left: 5px;
         }
+
         .card .bottom-right {
             bottom: 5px;
             right: 5px;
             transform: rotate(180deg);
         }
+
         .red {
             color: red;
         }
+
         .black {
             color: black;
         }
+
         button {
             padding: 10px 15px;
             font-size: 16px;
@@ -77,26 +98,57 @@
             border-radius: 5px;
             transition: background 0.3s ease-in-out;
         }
+
         button:hover {
             background: #2980b9;
         }
+
         #how-to-play {
-    text-align: center;
-    margin-top: 20px;
-}
+            text-align: center;
+            margin-top: 20px;
+        }
 
-#instructions {
-    background: none;  /* Removed background */
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: none;  /* Removed shadow */
-    max-width: 400px;
-    margin: 10px auto;
-    color: #fff;  /* Adjust this if needed to match your theme */
-    text-align: left;
-}
+        #instructions {
+            background: none;
+            /* Removed background */
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: none;
+            /* Removed shadow */
+            max-width: 400px;
+            margin: 10px auto;
+            color: #fff;
+            /* Adjust this if needed to match your theme */
+            text-align: left;
+        }
 
+        @keyframes shake {
 
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            80% {
+                transform: translateX(-5px);
+            }
+
+            40%,
+            60% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .collapsed-cards {
+            font-size: 14px;
+            color: gray;
+            margin: 10px;
+        }
     </style>
 <body>
     <h1>🎴 Ten Out 🎴</h1>
@@ -115,15 +167,17 @@
             <h3>How to Play "Ten Out"</h3>
             <ul>
                 <li>Click "Draw Card" to add a card to your hand.</li>
-                <li>If a combination of 3 cards (from the front, back, or mixed) adds up to 10, 20, or 30, you can discard them.</li>
+                <li>If a combination of 3 cards (from the front, back, or mixed) adds up to 10, 20, or 30, you can
+                    discard them.</li>
                 <li>Click "Check & Discard" to remove valid sets.</li>
                 <li>The goal is to end with a single card of value 10 for a "Perfect Game" 🎉.</li>
-                <li>If you end with 4 cards that sum to 10, 20, or 30, you still win but can try again for perfection.</li>
+                <li>If you end with 4 cards that sum to 10, 20, or 30, you still win but can try again for perfection.
+                </li>
                 <li>If you run out of moves with more than 4 cards left, it's Game Over! ❌</li>
             </ul>
         </div>
     </div>
-    
+
     <script>
         let deck = [];
         let queue = [];
@@ -131,9 +185,9 @@
 
         function initializeDeck() {
             let values = [
-                { num: 1, label: "A" }, { num: 2, label: "2" }, { num: 3, label: "3" }, 
-                { num: 4, label: "4" }, { num: 5, label: "5" }, { num: 6, label: "6" }, 
-                { num: 7, label: "7" }, { num: 8, label: "8" }, { num: 9, label: "9" }, 
+                { num: 1, label: "A" }, { num: 2, label: "2" }, { num: 3, label: "3" },
+                { num: 4, label: "4" }, { num: 5, label: "5" }, { num: 6, label: "6" },
+                { num: 7, label: "7" }, { num: 8, label: "8" }, { num: 9, label: "9" },
                 { num: 10, label: "10" }, { num: 10, label: "J" }, { num: 10, label: "Q" }, { num: 10, label: "K" }
             ];
 
@@ -150,125 +204,172 @@
         }
 
         function drawCard() {
-    if (deck.length > 0) {
-        queue.push(deck.pop());
-        updateUI();
-        checkWinCondition();
+            if (deck.length > 0) {
+                queue.push(deck.pop());
+                updateUI();
+                checkWinCondition();
 
-        // Disable draw button if no more cards
-        if (deck.length === 0) {
-            document.getElementById("draw-btn").disabled = true;
-        }
-    }
-}
-
-
-function checkDiscard() {
-    if (queue.length < 3) return;
-
-    let discardIndices = findDiscardIndices();
-    if (discardIndices.length === 3) {
-        // Disable button during animation
-        document.querySelector("button[onclick='checkDiscard()']").disabled = true;
-
-        // Animate discard
-        let cardElements = document.querySelectorAll(".card");
-        discardIndices.forEach(index => {
-            cardElements[index].style.opacity = "0";
-        });
-
-        setTimeout(() => {
-            // Remove selected cards from queue
-            queue = queue.filter((_, index) => !discardIndices.includes(index));
-
-            // Update UI
-            updateUI();
-            checkWinCondition();
-
-            // Re-enable button
-            document.querySelector("button[onclick='checkDiscard()']").disabled = false;
-        }, 500);
-    }
-}
-
-
-function findDiscardIndices() {
-    let n = queue.length;
-
-    let validSets = [
-        [0, 1, 2],        // First 3 cards
-        [n - 3, n - 2, n - 1],  // Last 3 cards
-        [0, n - 2, n - 1],  // 1 from head, 2 from tail
-        [n - 1, 0, 1]       // 1 from tail, 2 from head
-    ];
-
-    for (let indices of validSets) {
-        if (indices.every(i => i >= 0 && i < n)) {
-            let sum = indices.reduce((acc, i) => acc + queue[i].value, 0);
-            if (sum === 10 || sum === 20 || sum === 30) {
-                return indices;
+                // Disable draw button if no more cards
+                if (deck.length === 0) {
+                    document.getElementById("draw-btn").disabled = true;
+                }
             }
         }
-    }
-    return [];
-}
 
-function checkWinCondition() {
-    let totalCards = queue.length;
-    let totalSum = queue.reduce((acc, card) => acc + card.value, 0);
+        function checkDiscard() {
+            if (queue.length < 3) return;
 
-    // Only check for a win or loss when the deck is empty
-    if (deck.length === 0) {
-        if (totalCards === 1 && queue[0].value === 10) {
-            document.getElementById("status").innerText = "🎉 Perfect Game! You ended with a 10!";
-        } 
-        else if (totalCards === 4 && [10, 20, 30].includes(totalSum)) {
-            document.getElementById("status").innerText = "🎉 You won! Try for a Perfect Game next time!";
-        } 
-        else if (findDiscardIndices().length === 0) {
-            document.getElementById("status").innerText = "❌ Game Over! No moves left. Try again!";
+            let discardIndices = findDiscardIndices();
+            if (discardIndices.length === 3) {
+                // Disable button during animation
+                document.querySelector("button[onclick='checkDiscard()']").disabled = true;
+
+                // Animate discard
+                let cardElements = document.querySelectorAll(".card");
+                discardIndices.forEach(index => {
+                    cardElements[index].style.opacity = "0";
+                });
+
+                setTimeout(() => {
+                    // Remove selected cards from queue
+                    queue = queue.filter((_, index) => !discardIndices.includes(index));
+
+                    // Update UI
+                    updateUI();
+                    checkWinCondition();
+
+                    // Re-enable button
+                    document.querySelector("button[onclick='checkDiscard()']").disabled = false;
+                }, 500);
+            } else {
+                // Invalid discard → Shake effect
+                let cardContainer = document.getElementById("queue");
+                cardContainer.classList.add("shake");
+
+                // Remove shake effect after animation
+                setTimeout(() => {
+                    cardContainer.classList.remove("shake");
+                }, 300);
+            }
         }
-    }
-}
 
+        function findDiscardIndices() {
+            let n = queue.length;
 
+            let validSets = [
+                [0, 1, 2],        // First 3 cards
+                [n - 3, n - 2, n - 1],  // Last 3 cards
+                [0, n - 2, n - 1],  // 1 from head, 2 from tail
+                [n - 1, 0, 1]       // 1 from tail, 2 from head
+            ];
+
+            for (let indices of validSets) {
+                if (indices.every(i => i >= 0 && i < n)) {
+                    let sum = indices.reduce((acc, i) => acc + queue[i].value, 0);
+                    if (sum === 10 || sum === 20 || sum === 30) {
+                        return indices;
+                    }
+                }
+            }
+            return [];
+        }
+
+        function checkWinCondition() {
+            let totalCards = queue.length;
+            let totalSum = queue.reduce((acc, card) => acc + card.value, 0);
+
+            // Only check for a win or loss when the deck is empty
+            if (deck.length === 0) {
+                if (totalCards === 1 && queue[0].value === 10) {
+                    document.getElementById("status").innerText = "🎉 Perfect Game! You ended with a 10!";
+                }
+                else if (totalCards === 4 && [10, 20, 30].includes(totalSum)) {
+                    document.getElementById("status").innerText = "🎉 You won! Try for a Perfect Game next time!";
+                }
+                else if (findDiscardIndices().length === 0) {
+                    document.getElementById("status").innerText = "❌ Game Over! No moves left. Try again!";
+                }
+            }
+        }
 
         function updateUI() {
             document.getElementById("deck-count").innerText = deck.length;
             let queueDiv = document.getElementById("queue");
             queueDiv.innerHTML = "";
 
-            let centerX = window.innerWidth / 2;
-            let spread = 40; 
+            let maxVisibleCards = 10;
+            let visibleThreshold = 5;
+            let maxCollapsed = 5; // Limit expansion of hidden cards
+            let totalCards = queue.length;
+            let containerWidth = window.innerWidth * 0.9; // Adjust spread dynamically based on window size
+            let spread = Math.max(containerWidth / (maxVisibleCards + maxCollapsed), 30); // Minimum spacing of 30px
+            let collapsedSpread = spread / 4; // Keep collapsed spacing proportional
+
+            let collapsedCount = totalCards > maxVisibleCards ? Math.min(totalCards - 2 * visibleThreshold, maxCollapsed) : 0;
+            let totalWidth = totalCards <= maxVisibleCards
+                ? totalCards * spread
+                : visibleThreshold * spread + collapsedCount * collapsedSpread + visibleThreshold * spread;
+            let startX = window.innerWidth / 2 - totalWidth / 2;
 
             queue.forEach((card, index) => {
                 let cardDiv = document.createElement("div");
                 cardDiv.className = "card show";
-
                 let suitColor = (card.suit === "♥" || card.suit === "♦") ? "red" : "black";
 
-                cardDiv.innerHTML = `
+                let xPos;
+                if (totalCards > maxVisibleCards && index >= visibleThreshold && index < totalCards - visibleThreshold) {
+                    cardDiv.classList.add("stacked-card");
+                    cardDiv.innerHTML = ""; // Remove visible pips
+                    let collapsedIndex = Math.min(index - visibleThreshold, collapsedCount - 1);
+                    xPos = startX + visibleThreshold * spread + collapsedIndex * collapsedSpread;
+                } else {
+                    cardDiv.innerHTML = `
                     <div class="top-left ${suitColor}">${card.label} ${card.suit}</div>
                     <div class="bottom-right ${suitColor}">${card.label} ${card.suit}</div>
                 `;
+                    if (totalCards <= maxVisibleCards) {
+                        xPos = startX + index * spread;
+                    } else if (index < visibleThreshold) {
+                        xPos = startX + index * spread;
+                    } else {
+                        let rightIndex = index - (totalCards - visibleThreshold);
+                        xPos = startX + (visibleThreshold * spread) + (collapsedCount * collapsedSpread) + rightIndex * spread;
+                    }
+                }
 
-                let xPos = centerX - (queue.length * spread) / 2 + index * spread;
+                cardDiv.style.position = "absolute";
                 cardDiv.style.left = `${xPos}px`;
-
+                cardDiv.style.transition = "left 0.5s ease-in-out"; // Smooth transition when collapsing
                 queueDiv.appendChild(cardDiv);
             });
         }
+
+        window.addEventListener("resize", updateUI); // Update layout on window resize
 
         function restartGame() {
             initializeDeck();
         }
 
         function toggleInstructions() {
-    let instructions = document.getElementById("instructions");
-    instructions.style.display = (instructions.style.display === "none" || instructions.style.display === "") ? "block" : "none";
-}
+            let instructions = document.getElementById("instructions");
+            instructions.style.display = (instructions.style.display === "none" || instructions.style.display === "") ? "block" : "none";
+        }
 
         initializeDeck();
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "d" || event.key === "D") {
+                drawCard();
+            } else if (event.key === "c" || event.key === "C") {
+                checkDiscard();
+            } else if (event.key === "r" || event.key === "R") {
+                restartGame();
+            } else if (event.key === "h" || event.key === "H") {
+                toggleInstructions();
+            }
+        });
+
     </script>
 </body>
+
 </html>

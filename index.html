@@ -407,12 +407,6 @@
                 startGame();
                 checkWinCondition();
                 updateUI();
-
-                // Disable draw button if no more cards
-                if (deck.length === 0) {
-                    document.querySelector("button[onclick='drawCard()']").disabled = true;
-                    document.querySelector("button[onclick='checkDiscard()']").disabled = true;
-                }
             }
         }
 
@@ -455,7 +449,9 @@
                     updateUI();
 
                     // Re-enable button
-                    document.querySelector("button[onclick='checkDiscard()']").disabled = false;
+                    if (!gameOver) {
+                        document.querySelector("button[onclick='checkDiscard()']").disabled = false;
+                    }
                 }, 500);
             }
             // 🛑 If in Hard or Very Hard mode, set game over!
@@ -513,18 +509,30 @@
                     document.getElementById("status").innerText = "🎉 Perfect Game! You ended with a 10!";
                     currentGamePerfect = true;
                     winGame();
+                    gameOver = true;
+                    // Disable draw button if no more cards
+                    document.querySelector("button[onclick='drawCard()']").disabled = true;
+                    document.querySelector("button[onclick='checkDiscard()']").disabled = true;
                 }
                 else if (totalCards === 4 && [10, 20, 30].includes(totalSum) && findDiscardIndices().length === 0) {
                     clearInterval(speedrunInterval); // ⏱ Stop timer
                     document.getElementById("status").innerText = "🎉 You won! Try for a Perfect Game next time!";
                     currentGamePerfect = false;
                     winGame();
+                    gameOver = true;
+                    // Disable draw button if no more cards
+                    document.querySelector("button[onclick='drawCard()']").disabled = true;
+                    document.querySelector("button[onclick='checkDiscard()']").disabled = true;
                 }
                 else if (findDiscardIndices().length === 0) {
+                    gameOver = true;
                     clearInterval(speedrunInterval); // ⏱ Stop timer
                     document.getElementById("status").innerText = "❌ Game Over! No moves left. Try again!";
                     gamesLost++;
                     updateStats();
+                    // Disable draw button if no more cards
+                    document.querySelector("button[onclick='drawCard()']").disabled = true;
+                    document.querySelector("button[onclick='checkDiscard()']").disabled = true;
                 }
             }
         }

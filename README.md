@@ -34,7 +34,6 @@
 
 ## Known Bugs  
 - Using keybinds for discarding may result in accidental extra discards if pressed too quickly  
-- **Fastest Time** in stats may slightly differ from the displayed stopped time  
 
 ---
 

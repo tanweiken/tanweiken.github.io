@@ -30,6 +30,9 @@
 - UI improvements  
 - Added **Debug Mode**  
 
+## v1.3.1  
+- Fixed minor bugs  
+
 ---
 
 ## Known Bugs  

@@ -605,7 +605,7 @@
 
             playSound("restart-sound");
             gameOver = false; // ✅ Reset game over state
-            initializeDebugDeck(false);
+            initializeDeck();
 
             // Reset and start speedrun timer
             speedrunStarted = false;
@@ -619,7 +619,7 @@
             instructions.style.display = (instructions.style.display === "none" || instructions.style.display === "") ? "block" : "none";
         }
 
-        initializeDebugDeck(true);
+        initializeDeck();
         updateStats();
 
         document.addEventListener("keydown", function (event) {
